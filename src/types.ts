@@ -1,9 +1,13 @@
-import type { FeatureCollection, GeoJSON, Point, Polygon } from "geojson";
+import type { Feature, FeatureCollection, LineString, Point, Polygon } from "geojson";
 
-export interface EventData {
+export interface WorkerData {
   start: Point;
   end: Point;
   resolution?: number;
   bufferValue?: number;
   obstacles: FeatureCollection<Polygon>;
+}
+
+export interface WorkerResponse {
+  path: Feature<LineString>;
 }
