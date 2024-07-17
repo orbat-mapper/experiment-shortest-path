@@ -42,11 +42,10 @@ onMounted(() => {
   drawPreprocessedGeometry(postObstacles);
   drawWayPoints(waypoints);
   fitMap();
-  // console.log(bezierSpline(simplify(path, { tolerance: 0.01, highQuality: true })));
+  doPath();
 });
 
 onModify((param) => {
-  console.log(param);
   doPath();
 });
 
@@ -68,13 +67,13 @@ function doPath() {
 
 <template>
   <div
-    class="absolute top-2 sm:top-6 right-2 sm:right-6 border rounded-md bg-opacity-80 bg-gray-200 p-4"
+    class="absolute top-2 sm:top-6 right-2 sm:right-6 border rounded-md bg-opacity-80 bg-gray-200 p-4 max-w-xs"
   >
     <header class="flex items-center justify-between">
       <a
         aria-label="Github"
         target="_blank"
-        href="https://github.com/orbat-mapper/experiment-fog-of-war"
+        href="https://github.com/orbat-mapper/experiment-shortest-path"
         rel="noopener, noreferrer"
         class="btn btn-sm btn-ghost drawer-button btn-square normal-case"
         ><svg
@@ -91,13 +90,15 @@ function doPath() {
     </header>
     <form class="" @submit.prevent>
       <button type="submit" class="btn btn-xs" @click="doPath">Find shortest path</button>
-      <label class="input input-bordered flex items-center gap-2 mt-2">
-        Resolution
-        <input type="text" class="grow" v-model="resolution" />
-      </label>
+      <div class="divider font-mono">turf.buffer(...)</div>
       <label class="input input-bordered flex items-center gap-2">
         Buffer
         <input type="text" class="grow" v-model="bufferValue" />
+      </label>
+      <div class="divider font-mono">turf.shortestPath(...)</div>
+      <label class="input input-bordered flex items-center gap-2 mt-2">
+        Resolution
+        <input type="text" class="grow" v-model="resolution" />
       </label>
     </form>
   </div>
