@@ -95,14 +95,25 @@ function doPath() {
       </div>
     </header>
     <form v-if="panelOpen" class="" @submit.prevent>
-      <div class="divider font-mono text-sm">turf.buffer(...)</div>
+      <p class="text-sm mt-2">
+        You can drag the start and end markers on the map and change parameters below.
+      </p>
+      <div class="divider font-mono text-sm">
+        <a href="https://turfjs.org/docs/api/buffer" target="_blank" class="link"
+          >turf.buffer(...)</a
+        >
+      </div>
       <label class="input input-bordered flex items-center gap-2 input-sm">
-        Buffer
+        radius:
         <input type="text" class="grow" v-model="bufferValue" />
       </label>
-      <div class="divider font-mono text-sm">turf.shortestPath(...)</div>
+      <div class="divider font-mono text-sm">
+        <a href="https://turfjs.org/docs/api/shortestPath" target="_blank" class="link"
+          >turf.shortestPath(...)</a
+        >
+      </div>
       <label class="input input-bordered flex items-center gap-2 mt-2 input-sm">
-        Resolution
+        resolution:
         <input type="text" class="grow" v-model="resolution" />
       </label>
 
