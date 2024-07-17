@@ -1,39 +1,33 @@
-# shortest-path-experiment
+# Shortest path experiment
 
-This template should help get you started developing with Vue 3 in Vite.
+Experiment with different "shortest path" libraries. Try it out at https://experiment-shortest-path.netlify.app/.
 
-## Recommended IDE Setup
+[Open in CodeSandbox](https://githubbox.com/orbat-mapper/experiment-shortest-path)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/fork/github/orbat-mapper/experiment-shortest-path)
 
-## Type Support for `.vue` Imports in TS
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+Libraries used:
+- [OpenLayers](https://openlayers.org/) for drawing the map
+- [Turf.js](https://turfjs.org/) for geometry calculations
 
-## Customize configuration
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+## Getting started
 
-## Project Setup
+Clone repo:
 
-```sh
-npm install
-```
+    $ git clone https://github.com/orbat-mapper/experiment-shortest-path.git
 
-### Compile and Hot-Reload for Development
+Navigate to project root:
 
-```sh
-npm run dev
-```
+    $ cd experiment-shortest-path
 
-### Type-Check, Compile and Minify for Production
+Install dependencies:
 
-```sh
-npm run build
-```
+    $ npm install
 
-### Lint with [ESLint](https://eslint.org/)
+To start a development server run:
 
-```sh
-npm run lint
-```
+    $ npm run dev
+
+The demo is now running on http://localhost:5173/. 
