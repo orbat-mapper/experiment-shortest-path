@@ -1,6 +1,6 @@
 # Shortest path experiment
 
-Experiment with different "shortest path" libraries. Try it out at https://experiment-shortest-path.netlify.app/.
+Experiment with different "shortest path" libraries. Try it out at https://orbat-mapper.github.io/experiment-shortest-path/.
 
 [Open in CodeSandbox](https://githubbox.com/orbat-mapper/experiment-shortest-path)
 

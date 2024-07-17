@@ -31,8 +31,8 @@ const sources = {
 const wayPointsLayer = new VectorLayer({
   source: new VectorSource({}),
   style: {
-    "circle-radius": 6,
-    "circle-fill-color": "rgba(255,0,0,0.8)"
+    "circle-radius": 7,
+    "circle-fill-color": "rgba(255,0,0,0.9)"
   }
 });
 
@@ -45,12 +45,12 @@ const onModifyEventHook = createEventHook<FeatureCollection>();
 
 const obstaclesLayer = new VectorLayer({
   source: new VectorSource({}),
-  style: { "stroke-color": "red" }
+  style: { "stroke-color": "green", "stroke-width": 2 }
 });
 
 const preprocessedLayer = new VectorLayer({
   source: new VectorSource({}),
-  style: { "stroke-color": "green", "fill-color": "rgba(188,35,65,0.6)" }
+  style: { "stroke-color": "red", "fill-color": "rgba(188,35,65,0.6)" }
 });
 
 const pathLayer = new VectorLayer({
@@ -62,7 +62,7 @@ const tileLayerA = new TileLayer({
   source: sources.osm
 });
 
-const layers = [tileLayerA, obstaclesLayer, preprocessedLayer, pathLayer, wayPointsLayer];
+const layers = [tileLayerA, preprocessedLayer, obstaclesLayer, pathLayer, wayPointsLayer];
 
 function drawPath(path: GeoJSON) {
   pathLayer.getSource()?.clear();
@@ -84,11 +84,11 @@ function drawWayPoints(wayPoints: GeoJSON) {
   wayPointsLayer.getSource()?.addFeatures(gjs.readFeatures(wayPoints));
 }
 
-function fitMap() {
+function fitMap(padding = [10, 10, 10, 10]) {
   const extent = obstaclesLayer.getSource()?.getExtent();
   extent &&
     olMap.getView().fit(extent, {
-      padding: [10, 10, 10, 10]
+      padding
     });
 }
 
