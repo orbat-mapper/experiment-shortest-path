@@ -6,6 +6,10 @@ Experiment with different "shortest path" libraries. Try it out at https://orbat
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/fork/github/orbat-mapper/experiment-shortest-path)
 
+Screenshot:
+
+![](screenshot.png)
+
 
 Libraries used:
 - [OpenLayers](https://openlayers.org/) for drawing the map
