@@ -1,8 +1,7 @@
 import OLMap from "ol/Map";
 import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
-import XYZ from "ol/source/XYZ";
-import { View } from "ol";
+import View from "ol/View";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { GeoJSON as GeoJSONFormat } from "ol/format";
@@ -12,21 +11,7 @@ import { createEventHook } from "@vueuse/core";
 
 // Set up sources and layers
 const sources = {
-  topo4: new XYZ({
-    url: "https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4&zoom={z}&x={x}&y={y}",
-    attributions: ['<a href="http://www.kartverket.no/">Kartverket</a>']
-  }),
-  topo4grayscale: new XYZ({
-    url: "https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4graatone&zoom={z}&x={x}&y={y}",
-    attributions: '<a href="http://www.kartverket.no/">Kartverket</a>'
-  }),
-  osm: new OSM(),
-  satellite: new XYZ({
-    transition: 0, // should be set to 0 when opacity is < 1
-    attributions:
-      "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-  })
+  osm: new OSM()
 };
 const wayPointsLayer = new VectorLayer({
   source: new VectorSource({}),
@@ -102,7 +87,6 @@ const modify = new Modify({
 
 modify.on("modifyend", (event) => {
   onModifyEventHook.trigger(getWayPoints());
-  console.log("modifyend", event);
 });
 
 const olMap = new OLMap({

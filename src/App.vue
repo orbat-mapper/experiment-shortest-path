@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMap } from "@/geo";
-import { nextTick, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import MapLogic from "@/MapLogic.vue";
 
 const mapInitialized = ref(false);

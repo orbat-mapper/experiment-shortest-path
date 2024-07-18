@@ -5,7 +5,8 @@ import Worker from "./worker?worker";
 
 import type { FeatureCollection } from "geojson";
 import { onMounted, ref } from "vue";
-import { buffer, featureCollection, point } from "@turf/turf";
+import { buffer } from "@turf/buffer";
+import { featureCollection, point } from "@turf/helpers";
 import type { WorkerResponse } from "@/types";
 
 const obstacles = data as FeatureCollection;
