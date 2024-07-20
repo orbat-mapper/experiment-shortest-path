@@ -51,7 +51,12 @@ const preprocessedLayer = new VectorLayer({
 
 const pathLayer = new VectorLayer({
   source: new VectorSource({}),
-  style: { "stroke-color": "blue", "stroke-width": 2 }
+  style: { "stroke-color": "blue", "stroke-width": 3 }
+});
+
+const postprocessedLayer = new VectorLayer({
+  source: new VectorSource({}),
+  style: { "stroke-color": "#ff002e", "stroke-width": 3 }
 });
 
 const tileLayerA = new TileLayer({
@@ -63,6 +68,7 @@ const layers = [
   preprocessedLayer,
   obstaclesLayer,
   pathLayer,
+  postprocessedLayer,
   wayPointsLayer,
   intersectionsLayer
 ];
@@ -82,6 +88,10 @@ function drawObstacles(obstacles: GeoJSON) {
 
 function drawPreprocessedGeometry(obstacles: GeoJSON) {
   drawGeoJsonLayer(preprocessedLayer, obstacles);
+}
+
+function drawPostprocessedGeometry(path?: Feature<LineString> | null) {
+  drawGeoJsonLayer(postprocessedLayer, path);
 }
 
 function drawWayPoints(wayPoints?: GeoJSON) {
@@ -132,6 +142,7 @@ export function useMap(target?: string | HTMLElement) {
     drawWayPoints,
     getWayPoints,
     onModifyWaypoints: onModifyEventHook.on,
-    drawIntersections
+    drawIntersections,
+    drawPostprocessedGeometry
   };
 }

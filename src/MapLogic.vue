@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { buffer } from "@turf/buffer";
 import { featureCollection, point, round } from "@turf/helpers";
-import { lineIntersect, lineSegment } from "@turf/turf";
+import { lineIntersect, lineSegment, simplify } from "@turf/turf";
 import { length as turfLength } from "@turf/length";
 import type { Feature, FeatureCollection, LineString, MultiPolygon, Point } from "geojson";
 
@@ -20,16 +20,21 @@ const {
   drawWayPoints,
   getWayPoints,
   onModifyWaypoints,
-  drawIntersections
+  drawIntersections,
+  drawPostprocessedGeometry
 } = useMap();
 
 const isWorking = ref(false);
 const resolution = ref(400);
 const bufferValue = ref(300);
+const doSimplify = ref(false);
+const doBuffer = ref(true);
+const simplifyTolerance = ref(0.01);
 const panelOpen = ref(true);
 
 const obstacles = data as FeatureCollection<MultiPolygon>;
 const calculatedPath = ref<Feature<LineString> | null>(null);
+
 const intersections = ref<FeatureCollection<Point> | null>(null);
 
 const pathLength = computed(() =>
@@ -38,10 +43,24 @@ const pathLength = computed(() =>
 
 const preprocessedObstacles = computed(() => {
   const radius = Math.round(+bufferValue.value);
-  if (isNaN(radius)) {
+  if (isNaN(radius) || !doBuffer.value) {
     return obstacles;
   }
   return buffer(obstacles, bufferValue.value, { units: "meters" }) ?? obstacles;
+});
+
+const postprocessedPath = computed(() => {
+  if (!doSimplify.value) {
+    return null;
+  }
+  const tolerance = +simplifyTolerance.value;
+
+  return calculatedPath.value
+    ? simplify(calculatedPath.value, {
+        highQuality: true,
+        tolerance: isNaN(tolerance) ? 1 : tolerance
+      })
+    : null;
 });
 
 const w = new Worker();
@@ -73,12 +92,18 @@ watch(calculatedPath, (newPath) => {
     return;
   }
   intersections.value = lineIntersect(newPath, preprocessedObstacles.value);
+  // console.log(lineSegment(newPath));
+});
+
+watch(doBuffer, () => {
+  calculateShortestPath();
 });
 
 watchEffect(() => {
   drawPreprocessedGeometry(preprocessedObstacles.value);
   drawIntersections(intersections.value);
   drawPath(calculatedPath.value);
+  drawPostprocessedGeometry(postprocessedPath.value);
 });
 
 function calculateShortestPath() {
@@ -114,6 +139,7 @@ function calculateShortestPath() {
       </p>
       <p class="text-xs font-bold mt-2">Pre-processing</p>
       <div class="divider font-mono text-sm">
+        <input type="checkbox" v-model="doBuffer" class="checkbox checkbox-xs" />
         #1
         <a href="https://turfjs.org/docs/api/buffer" target="_blank" class="link"
           >turf.buffer(...)</a
@@ -132,6 +158,26 @@ function calculateShortestPath() {
       <label class="input input-bordered flex items-center gap-2 mt-2 input-sm">
         resolution:
         <input type="text" class="grow" v-model="resolution" />
+      </label>
+      <p class="text-xs font-bold mt-4">Post-processing</p>
+      <div class="divider font-mono text-sm">
+        <input type="checkbox" v-model="doSimplify" class="checkbox checkbox-xs" /> #3<a
+          href="https://turfjs.org/docs/api/simplify"
+          target="_blank"
+          class="link"
+          >turf.simplify(...)</a
+        >
+      </div>
+      <label class="input input-bordered flex items-center gap-2 mt-2 input-sm">
+        tolerance:
+        <input
+          type="number"
+          step="0.001"
+          min="0"
+          max="1"
+          class="grow"
+          v-model="simplifyTolerance"
+        />
       </label>
       <p class="text-xs font-bold mt-4">Stats</p>
       <table class="table table-xs mt-2">
