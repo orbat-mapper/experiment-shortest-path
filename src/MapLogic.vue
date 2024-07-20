@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { buffer } from "@turf/buffer";
 import { featureCollection, point, round } from "@turf/helpers";
-import { lineIntersect } from "@turf/turf";
+import { lineIntersect, lineSegment } from "@turf/turf";
 import { length as turfLength } from "@turf/length";
 import type { Feature, FeatureCollection, LineString, MultiPolygon, Point } from "geojson";
 
@@ -19,7 +19,7 @@ const {
   drawPreprocessedGeometry,
   drawWayPoints,
   getWayPoints,
-  onModify,
+  onModifyWaypoints,
   drawIntersections
 } = useMap();
 
@@ -64,7 +64,7 @@ onMounted(() => {
   calculateShortestPath();
 });
 
-onModify((param) => {
+onModifyWaypoints((param) => {
   calculateShortestPath();
 });
 

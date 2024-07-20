@@ -5,7 +5,7 @@ import View from "ol/View";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { GeoJSON as GeoJSONFormat } from "ol/format";
-import type { Feature, FeatureCollection, GeoJSON, LineString } from "geojson";
+import type { Feature, FeatureCollection, GeoJSON, Geometry, LineString } from "geojson";
 import { Modify } from "ol/interaction";
 import { createEventHook } from "@vueuse/core";
 
@@ -67,29 +67,29 @@ const layers = [
   intersectionsLayer
 ];
 
+function drawGeoJsonLayer<T extends GeoJSON>(layer: VectorLayer<any>, geoJson?: T | null) {
+  layer.getSource()?.clear();
+  geoJson && layer.getSource()?.addFeatures(gjs.readFeatures(geoJson));
+}
+
 function drawPath(path?: Feature<LineString> | null) {
-  pathLayer.getSource()?.clear();
-  path && pathLayer.getSource()?.addFeatures(gjs.readFeatures(path));
+  drawGeoJsonLayer(pathLayer, path);
 }
 
 function drawObstacles(obstacles: GeoJSON) {
-  obstaclesLayer.getSource()?.clear();
-  obstaclesLayer.getSource()?.addFeatures(gjs.readFeatures(obstacles));
+  drawGeoJsonLayer(obstaclesLayer, obstacles);
 }
 
 function drawPreprocessedGeometry(obstacles: GeoJSON) {
-  preprocessedLayer.getSource()?.clear();
-  preprocessedLayer.getSource()?.addFeatures(gjs.readFeatures(obstacles));
+  drawGeoJsonLayer(preprocessedLayer, obstacles);
 }
 
 function drawWayPoints(wayPoints?: GeoJSON) {
-  wayPointsLayer.getSource()?.clear();
-  wayPoints && wayPointsLayer.getSource()?.addFeatures(gjs.readFeatures(wayPoints));
+  drawGeoJsonLayer(wayPointsLayer, wayPoints);
 }
 
 function drawIntersections(intersections?: GeoJSON | null) {
-  intersectionsLayer.getSource()?.clear();
-  intersections && intersectionsLayer.getSource()?.addFeatures(gjs.readFeatures(intersections));
+  drawGeoJsonLayer(intersectionsLayer, intersections);
 }
 
 function fitMap(padding = [10, 10, 10, 10]) {
@@ -131,7 +131,7 @@ export function useMap(target?: string | HTMLElement) {
     drawPreprocessedGeometry,
     drawWayPoints,
     getWayPoints,
-    onModify: onModifyEventHook.on,
+    onModifyWaypoints: onModifyEventHook.on,
     drawIntersections
   };
 }
