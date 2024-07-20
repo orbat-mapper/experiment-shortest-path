@@ -5,7 +5,7 @@ import View from "ol/View";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { GeoJSON as GeoJSONFormat } from "ol/format";
-import type { FeatureCollection, GeoJSON } from "geojson";
+import type { Feature, FeatureCollection, GeoJSON, LineString } from "geojson";
 import { Modify } from "ol/interaction";
 import { createEventHook } from "@vueuse/core";
 
@@ -67,9 +67,9 @@ const layers = [
   intersectionsLayer
 ];
 
-function drawPath(path: GeoJSON) {
+function drawPath(path?: Feature<LineString> | null) {
   pathLayer.getSource()?.clear();
-  pathLayer.getSource()?.addFeatures(gjs.readFeatures(path));
+  path && pathLayer.getSource()?.addFeatures(gjs.readFeatures(path));
 }
 
 function drawObstacles(obstacles: GeoJSON) {
@@ -105,7 +105,8 @@ function getWayPoints() {
 }
 
 const modify = new Modify({
-  source: wayPointsLayer.getSource()!
+  source: wayPointsLayer.getSource()!,
+  pixelTolerance: 40
 });
 
 modify.on("modifyend", (event) => {

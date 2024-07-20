@@ -13,6 +13,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="map-container" class="w-full h-full"></div>
+  <div id="map-container" class="w-full h-full relative"></div>
   <MapLogic v-if="mapInitialized" />
 </template>
+
+<style>
+.ol-rotate {
+  @apply bottom-4 right-[unset] left-2 top-[unset];
+}
+</style>

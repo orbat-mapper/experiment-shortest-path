@@ -2,9 +2,9 @@
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { buffer } from "@turf/buffer";
 import { featureCollection, point, round } from "@turf/helpers";
-import { lineIntersect, lineString } from "@turf/turf";
+import { lineIntersect } from "@turf/turf";
 import { length as turfLength } from "@turf/length";
-import type { FeatureCollection, LineString, Feature, Point, MultiPolygon } from "geojson";
+import type { Feature, FeatureCollection, LineString, MultiPolygon, Point } from "geojson";
 
 import { useMap } from "@/geo";
 import data from "./data/falkland-islands.json";
@@ -48,7 +48,6 @@ const w = new Worker();
 w.onmessage = (e: MessageEvent<WorkerResponse>) => {
   const { path } = e.data;
   calculatedPath.value = path;
-  drawPath(path);
   isWorking.value = false;
 };
 
@@ -79,6 +78,7 @@ watch(calculatedPath, (newPath) => {
 watchEffect(() => {
   drawPreprocessedGeometry(preprocessedObstacles.value);
   drawIntersections(intersections.value);
+  drawPath(calculatedPath.value);
 });
 
 function calculateShortestPath() {
