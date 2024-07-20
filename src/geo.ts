@@ -16,8 +16,19 @@ const sources = {
 const wayPointsLayer = new VectorLayer({
   source: new VectorSource({}),
   style: {
+    "circle-radius": 8,
+    "circle-fill-color": "rgba(255,0,0,0.9)",
+    "circle-stroke-color": "rgba(19,19,19,0.52)",
+    "circle-stroke-width": 2
+  }
+});
+
+const intersectionsLayer = new VectorLayer({
+  source: new VectorSource({}),
+  style: {
     "circle-radius": 7,
-    "circle-fill-color": "rgba(255,0,0,0.9)"
+    "circle-stroke-color": "#fff248",
+    "circle-stroke-width": 3
   }
 });
 
@@ -47,7 +58,14 @@ const tileLayerA = new TileLayer({
   source: sources.osm
 });
 
-const layers = [tileLayerA, preprocessedLayer, obstaclesLayer, pathLayer, wayPointsLayer];
+const layers = [
+  tileLayerA,
+  preprocessedLayer,
+  obstaclesLayer,
+  pathLayer,
+  wayPointsLayer,
+  intersectionsLayer
+];
 
 function drawPath(path: GeoJSON) {
   pathLayer.getSource()?.clear();
@@ -64,9 +82,14 @@ function drawPreprocessedGeometry(obstacles: GeoJSON) {
   preprocessedLayer.getSource()?.addFeatures(gjs.readFeatures(obstacles));
 }
 
-function drawWayPoints(wayPoints: GeoJSON) {
+function drawWayPoints(wayPoints?: GeoJSON) {
   wayPointsLayer.getSource()?.clear();
-  wayPointsLayer.getSource()?.addFeatures(gjs.readFeatures(wayPoints));
+  wayPoints && wayPointsLayer.getSource()?.addFeatures(gjs.readFeatures(wayPoints));
+}
+
+function drawIntersections(intersections?: GeoJSON | null) {
+  intersectionsLayer.getSource()?.clear();
+  intersections && intersectionsLayer.getSource()?.addFeatures(gjs.readFeatures(intersections));
 }
 
 function fitMap(padding = [10, 10, 10, 10]) {
@@ -107,6 +130,7 @@ export function useMap(target?: string | HTMLElement) {
     drawPreprocessedGeometry,
     drawWayPoints,
     getWayPoints,
-    onModify: onModifyEventHook.on
+    onModify: onModifyEventHook.on,
+    drawIntersections
   };
 }

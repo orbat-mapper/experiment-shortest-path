@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import { computed, onMounted, ref, watch, watchEffect } from "vue";
+import { buffer } from "@turf/buffer";
+import { featureCollection, point, round } from "@turf/helpers";
+import { lineIntersect, lineString } from "@turf/turf";
+import { length as turfLength } from "@turf/length";
+import type { FeatureCollection, LineString, Feature, Point, MultiPolygon } from "geojson";
+
 import { useMap } from "@/geo";
 import data from "./data/falkland-islands.json";
 import Worker from "./worker?worker";
-
-import type { FeatureCollection } from "geojson";
-import { onMounted, ref } from "vue";
-import { buffer } from "@turf/buffer";
-import { featureCollection, point } from "@turf/helpers";
 import type { WorkerResponse } from "@/types";
+import GithubLink from "@/components/GithubLink.vue";
 
-const obstacles = data as FeatureCollection;
 const {
   drawPath,
   fitMap,
@@ -17,22 +19,35 @@ const {
   drawPreprocessedGeometry,
   drawWayPoints,
   getWayPoints,
-  onModify
+  onModify,
+  drawIntersections
 } = useMap();
+
 const isWorking = ref(false);
 const resolution = ref(400);
-const bufferValue = ref(100);
+const bufferValue = ref(300);
 const panelOpen = ref(true);
 
-let preprocessedObstacles = buffer(obstacles, bufferValue.value, { units: "meters" }) as any;
+const obstacles = data as FeatureCollection<MultiPolygon>;
+const calculatedPath = ref<Feature<LineString> | null>(null);
+const intersections = ref<FeatureCollection<Point> | null>(null);
 
-function doPreprocessing() {
-  preprocessedObstacles = buffer(obstacles, bufferValue.value, { units: "meters" }) as any;
-}
+const pathLength = computed(() =>
+  calculatedPath.value ? round(turfLength(calculatedPath.value, { units: "kilometers" }), 2) : -1
+);
+
+const preprocessedObstacles = computed(() => {
+  const radius = Math.round(+bufferValue.value);
+  if (isNaN(radius)) {
+    return obstacles;
+  }
+  return buffer(obstacles, bufferValue.value, { units: "meters" }) ?? obstacles;
+});
 
 const w = new Worker();
 w.onmessage = (e: MessageEvent<WorkerResponse>) => {
   const { path } = e.data;
+  calculatedPath.value = path;
   drawPath(path);
   isWorking.value = false;
 };
@@ -44,7 +59,7 @@ const waypoints = featureCollection([
 
 onMounted(() => {
   drawObstacles(obstacles);
-  drawPreprocessedGeometry(preprocessedObstacles);
+  drawPreprocessedGeometry(preprocessedObstacles.value);
   drawWayPoints(waypoints);
   fitMap([50, 50, 50, 50]);
   calculateShortestPath();
@@ -54,18 +69,29 @@ onModify((param) => {
   calculateShortestPath();
 });
 
+watch(calculatedPath, (newPath) => {
+  if (!newPath) {
+    return;
+  }
+  intersections.value = lineIntersect(newPath, preprocessedObstacles.value);
+});
+
+watchEffect(() => {
+  drawPreprocessedGeometry(preprocessedObstacles.value);
+  drawIntersections(intersections.value);
+});
+
 function calculateShortestPath() {
   isWorking.value = true;
   const waypointsFeatureCollection = getWayPoints();
   const start = waypointsFeatureCollection.features[0].geometry;
   const end = waypointsFeatureCollection.features[1].geometry;
-  doPreprocessing();
-  drawPreprocessedGeometry(preprocessedObstacles);
+
   w.postMessage({
     start,
     end,
     resolution: resolution.value,
-    obstacles: preprocessedObstacles
+    obstacles: preprocessedObstacles.value
   });
 }
 </script>
@@ -75,25 +101,7 @@ function calculateShortestPath() {
     class="absolute top-2 sm:top-6 right-2 sm:right-6 border rounded-md bg-opacity-80 bg-gray-200 p-4 max-w-xs"
   >
     <header class="flex items-center justify-between">
-      <a
-        aria-label="Github"
-        target="_blank"
-        href="https://github.com/orbat-mapper/experiment-shortest-path"
-        rel="noopener, noreferrer"
-        class="btn btn-sm btn-ghost drawer-button btn-square normal-case"
-      >
-        <svg
-          width="20"
-          height="20"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 512 512"
-          class="inline-block h-5 w-5 fill-current md:h-6 md:w-6"
-        >
-          <path
-            d="M256,32C132.3,32,32,134.9,32,261.7c0,101.5,64.2,187.5,153.2,217.9a17.56,17.56,0,0,0,3.8.4c8.3,0,11.5-6.1,11.5-11.4,0-5.5-.2-19.9-.3-39.1a102.4,102.4,0,0,1-22.6,2.7c-43.1,0-52.9-33.5-52.9-33.5-10.2-26.5-24.9-33.6-24.9-33.6-19.5-13.7-.1-14.1,1.4-14.1h.1c22.5,2,34.3,23.8,34.3,23.8,11.2,19.6,26.2,25.1,39.6,25.1a63,63,0,0,0,25.6-6c2-14.8,7.8-24.9,14.2-30.7-49.7-5.8-102-25.5-102-113.5,0-25.1,8.7-45.6,23-61.6-2.3-5.8-10-29.2,2.2-60.8a18.64,18.64,0,0,1,5-.5c8.1,0,26.4,3.1,56.6,24.1a208.21,208.21,0,0,1,112.2,0c30.2-21,48.5-24.1,56.6-24.1a18.64,18.64,0,0,1,5,.5c12.2,31.6,4.5,55,2.2,60.8,14.3,16.1,23,36.6,23,61.6,0,88.2-52.4,107.6-102.3,113.3,8,7.1,15.2,21.1,15.2,42.5,0,30.7-.3,55.5-.3,63,0,5.4,3.1,11.5,11.4,11.5a19.35,19.35,0,0,0,4-.4C415.9,449.2,480,363.1,480,261.7,480,134.9,379.7,32,256,32Z"
-          ></path>
-        </svg>
-      </a>
+      <GithubLink />
       <div class="flex items-center gap-2">
         <span v-if="isWorking" class="loading loading-dots text-primary"></span>
         <span v-else class="w-6" />
@@ -104,6 +112,7 @@ function calculateShortestPath() {
       <p class="text-sm mt-2">
         You can drag the start and end markers on the map and change parameters below.
       </p>
+      <p class="text-xs font-bold mt-2">Pre-processing</p>
       <div class="divider font-mono text-sm">
         #1
         <a href="https://turfjs.org/docs/api/buffer" target="_blank" class="link"
@@ -112,8 +121,9 @@ function calculateShortestPath() {
       </div>
       <label class="input input-bordered flex items-center gap-2 input-sm">
         radius:
-        <input type="text" class="grow" v-model="bufferValue" />
+        <input type="text" class="grow" v-model.lazy="bufferValue" />
       </label>
+      <p class="text-xs font-bold mt-4">Processing</p>
       <div class="divider font-mono text-sm">
         #2<a href="https://turfjs.org/docs/api/shortestPath" target="_blank" class="link"
           >turf.shortestPath(...)</a
@@ -123,6 +133,17 @@ function calculateShortestPath() {
         resolution:
         <input type="text" class="grow" v-model="resolution" />
       </label>
+      <p class="text-xs font-bold mt-4">Stats</p>
+      <table class="table table-xs mt-2">
+        <tr>
+          <td>Path length</td>
+          <td>{{ pathLength }} km</td>
+        </tr>
+        <tr>
+          <td>Intersections</td>
+          <td>{{ intersections?.features.length }}</td>
+        </tr>
+      </table>
 
       <footer class="flex items-center justify-end mt-4">
         <button type="submit" class="btn btn-xs btn-primary" @click="calculateShortestPath()">
