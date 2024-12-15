@@ -1,6 +1,6 @@
 # Shortest path experiment
 
-Experiment with different "shortest path" libraries. Try it out at https://orbat-mapper.github.io/experiment-shortest-path/.
+Experiment with different "shortest path" libraries. Try it out at https://experiment-shortest-path.pages.dev/.
 
 [Open in CodeSandbox](https://githubbox.com/orbat-mapper/experiment-shortest-path)
 
