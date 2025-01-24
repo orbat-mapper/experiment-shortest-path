@@ -6,6 +6,8 @@ Experiment with different "shortest path" libraries. Try it out at https://exper
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/fork/github/orbat-mapper/experiment-shortest-path)
 
+[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/orbat-mapper/experiment-shortest-path)
+
 Screenshot:
 
 ![](screenshot.png)
